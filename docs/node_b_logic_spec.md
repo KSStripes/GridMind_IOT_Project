@@ -1,8 +1,56 @@
 # GridMind Node B — Deterministic Local Logic Specification
 
-Status: proposed implementation specification, first drafted 8 July 2026. This is the permanent logic foundation for Node B, not a disposable Day 3 test. Hardware remains unpowered while this model is reviewed and self-tested.
+Status: first drafted and implemented 8 July 2026. This is the permanent logic foundation for Node B, not a disposable Day 3 test. The object-oriented reference class passed native C++ checks, compiled and uploaded through Arduino IDE 1.8.19, and passed all ten on-board Serial acceptance tests. The educational weights remain subject to sensitivity review before final design freeze.
 
 The educational rationale, intended learning progression and literature basis for this model are documented separately in [`serious-game_theory.md`](./serious-game_theory.md). This file defines the executable rules and acceptance results.
+
+## Object-oriented implementation architecture
+
+Node B uses a small object-oriented domain model so that completed logic can be tested, stabilised and then reused by later interfaces.
+
+```text
+Physical buttons ----\
+Serial interface -----\
+Browser and JSON ------> NodeBGame ----> DecisionResult
+Future peer requests --/      |
+Feedback LED <----------------/
+```
+
+`NodeBGame` owns:
+
+- the current `GridState`;
+- the current `WorkloadState`;
+- the cumulative scenario score; and
+- whether a valid scenario has been initialised.
+
+Its intended stable public operations are:
+
+| Operation | Responsibility |
+|---|---|
+| `begin(grid, workload)` | Validate and start a new scenario with score zero |
+| `setGrid(grid)` | Supply new grid conditions for a later decision round |
+| `apply(action)` | Apply one Run, Defer or Reduce decision and return its complete consequence |
+| `score()` | Return the cumulative score without changing state |
+| `grid()` / `workload()` | Expose read-only current state to presentation adapters |
+| `isValidGrid()` / `isValidWorkload()` | Reuse the same validation rules at future Serial and JSON boundaries |
+
+`DecisionResult` is the common output contract. It exposes acceptance or controlled failure, resource use, value earned, individual penalties, score delta, cumulative score, deadline and final workload status. Serial, LED, dashboard and JSON outputs must derive their feedback from this result and the owned game state.
+
+The architecture currently uses seven Arduino sketch files:
+
+| File | Role | Expected stability |
+|---|---|---|
+| `firmware/node_b/NodeBGame.h` | Public types and class contract | Freeze after model review and Arduino verification |
+| `firmware/node_b/NodeBGame.cpp` | Validation, transitions and scoring | Change only for corrected or deliberately revised game rules |
+| `firmware/node_b/ButtonPanel.h` | Public contract for the three-button input adapter | Stable after physical integration tests |
+| `firmware/node_b/ButtonPanel.cpp` | Pin allocation and non-blocking debounce | Change only for deliberate input-hardware revisions |
+| `firmware/node_b/FeedbackLed.h` | Public contract for ordinary-LED outcome feedback | Stable after physical integration tests |
+| `firmware/node_b/FeedbackLed.cpp` | Non-blocking positive, neutral and penalty patterns on D0 | Change only for deliberate feedback-policy revisions |
+| `firmware/node_b/node_b.ino` | Acceptance-test and current interactive integration runner | Evolve as new adapters are composed around the class |
+
+The `NodeBGame` class deliberately contains no GPIO, debounce, LED, Serial, Wi-Fi, HTTP, JSON, HTML or OLED code. `ButtonPanel` converts debounced D5/D6/D7 presses into `Action` values, while `FeedbackLed` converts an accepted `DecisionResult` into a non-blocking D0 pattern. Neither adapter calculates scores or mutates private game state directly. Future output and network concerns must follow the same separation.
+
+The student prefers to learn by typing the implementation personally. Introduce the architecture through short single-file exercises and then the class contract and implementation in manageable sections. Do not require the complete reference implementation to be typed at once.
 
 ## Design rules
 
@@ -34,7 +82,7 @@ The educational rationale, intended learning progression and literature basis fo
 | `deadline` | 1–5 rounds | Rounds remaining, including the current round |
 | `progress` | 0 or 100% | Whether the workload is pending or complete |
 
-The Day 3 model handles one pending workload at a time. A completed or failed workload cannot accept another decision.
+The current model handles one pending workload at a time. A completed or failed workload cannot accept another decision.
 
 ## Actions and transitions
 
@@ -184,3 +232,9 @@ Run is preferable by 15 points.
 10. Reject an action on a workload that is already complete or failed without changing state or score.
 
 No buttons, LED, Wi-Fi or display code may be added to the self-test sketch.
+
+## Verification record
+
+On 8 July 2026, the three-file `NodeBGame` implementation compiled for `NodeMCU 1.0 (ESP-12E Module)` using 23,944 bytes of flash, uploaded to Board 2 through `/dev/ttyUSB0`, and printed `RESULT: 10/10 PASS` at 115200 baud. The evidence screenshot is [`evidence/node_b/Day3_node_b_logic-run.png`](../evidence/node_b/Day3_node_b_logic-run.png).
+
+This verifies that the implementation matches the documented deterministic acceptance cases. It does not yet verify physical-button integration, LED feedback, Wi-Fi, HTTP, JSON, dashboard behaviour, peer communication or educational effectiveness.

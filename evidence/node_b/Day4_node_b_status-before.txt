@@ -1,0 +1,7 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 255
+Connection: keep-alive
+Keep-Alive: timeout=2000
+
+{"node":"node-b","gameReady":true,"cumulativeScore":0,"grid":{"capacity":4,"renewablePercent":60,"carbonIndex":40,"thermalHeadroom":3},"workload":{"energyCost":6,"heatCost":4,"value":40,"flexible":true,"deadline":1,"progressPercent":0,"status":"pending"}}

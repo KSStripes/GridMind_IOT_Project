@@ -1,3 +1,10 @@
+/*
+ * GridMind Node B - Application Coordinator Implementation
+ *
+ * Starts regression tests and adapters in a safe order, polls each non-blocking
+ * component, and sends accepted game results to Serial and the feedback LED.
+ */
+
 #include <Arduino.h>
 
 #include "NodeBApplication.h"
@@ -7,6 +14,7 @@ using namespace gridmind;
 
 namespace {
 
+// Fixed Scenario C values keep physical and web acceptance checks reproducible.
 GridState constrainedGrid() {
   return {4, 60, 40, 3};
 }
@@ -46,7 +54,8 @@ NodeBApplication::NodeBApplication(
     const char* wifiPassword,
     bool runStartupTests)
     : wifiConnection_(wifiSsid, wifiPassword),
-      webApi_(wifiConnection_),
+      // The web adapter observes the same model used by physical buttons.
+      webApi_(wifiConnection_, game_),
       runStartupTests_(runStartupTests) {
 }
 
@@ -55,6 +64,7 @@ void NodeBApplication::begin() {
   delay(100);
 
   if (runStartupTests_) {
+    // Protect stable domain behavior before interactive adapters start.
     NodeBInitTests::run();
   }
 
@@ -67,6 +77,7 @@ void NodeBApplication::begin() {
 
 void NodeBApplication::update() {
   Action action = Action::RUN;
+  // These updates are non-blocking so input, feedback, and HTTP can coexist.
   feedbackLed_.update();
   webApi_.update();
 

@@ -1,0 +1,12 @@
+GridMind Node B /api/health regression observation record
+Date: 9 July 2026
+Capture note: Observed successfully on the DGX Spark after /api/status was added; the raw curl tee file was not retained.
+
+HTTP result: 200 OK
+Content type: application/json
+
+Observed response:
+{"node":"node-b","role":"compute-station","status":"ok","wifiConnected":true,"uptimeMs":987463}
+
+Purpose:
+- Confirms the previously verified /api/health route still responded after /api/status was integrated.

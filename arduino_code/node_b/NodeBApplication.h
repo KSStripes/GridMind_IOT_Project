@@ -1,3 +1,10 @@
+/*
+ * GridMind Node B - Application Coordinator Interface
+ *
+ * Composes the game model with button, LED, Wi-Fi, and web adapters. The class
+ * coordinates their lifecycle while keeping domain rules inside NodeBGame.
+ */
+
 #ifndef GRIDMIND_NODE_B_APPLICATION_H
 #define GRIDMIND_NODE_B_APPLICATION_H
 
@@ -19,6 +26,7 @@ class NodeBApplication {
 
  private:
   gridmind::ButtonPanel buttonPanel_;
+  // Single authoritative model shared by physical and web adapters.
   gridmind::NodeBGame game_;
   gridmind::FeedbackLed feedbackLed_;
   WiFiConnection wifiConnection_;

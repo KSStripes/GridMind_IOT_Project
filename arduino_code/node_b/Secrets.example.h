@@ -1,3 +1,5 @@
+// Secrets.example.h
+// Documents the two local Wi-Fi values required by Web without sharing them.
 #ifndef GRIDMIND_SECRETS_EXAMPLE_H
 #define GRIDMIND_SECRETS_EXAMPLE_H
 

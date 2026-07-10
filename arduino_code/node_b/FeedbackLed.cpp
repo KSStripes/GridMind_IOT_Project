@@ -1,9 +1,9 @@
 /*
  * GridMind Node B - Ordinary Feedback LED Implementation
  *
- * Positive score: steady on.
- * Zero score: two slow flashes.
- * Negative score: three fast flashes.
+ * Positive simulated net outcome: steady on.
+ * Zero simulated net outcome: two slow flashes.
+ * Negative simulated net outcome: three fast flashes.
  */
 
 #include "FeedbackLed.h"
@@ -47,12 +47,12 @@ void FeedbackLed::show(const DecisionResult& result) {
     return;
   }
 
-  if (result.scoreDelta > 0) {
+  if (result.netCents > 0) {
     // Positive outcome remains visible until reset or another accepted result.
     mode_ = Mode::STEADY;
     togglesRemaining_ = 0;
     setLed(true);
-  } else if (result.scoreDelta == 0) {
+  } else if (result.netCents == 0) {
     // Neutral or warning outcome: two slower flashes.
     startBlink(2, 300);
   } else {

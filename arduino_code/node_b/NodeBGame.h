@@ -1,9 +1,9 @@
 /*
  * GridMind Node B - Game Model Interface
  *
- * Defines the data exchanged with the game engine and the public NodeBGame
- * class. Hardware, Serial, web, and display code should use this interface
- * rather than implement their own scoring rules.
+ * Defines the physical-unit scenario data and the deterministic result shared
+ * by Serial, LED, web, and future display adapters. Hardware and presentation
+ * code must not duplicate these rules.
  */
 
 #ifndef GRIDMIND_NODE_B_GAME_H
@@ -13,7 +13,6 @@
 
 namespace gridmind {
 
-// The three decisions available to the learner.
 enum class Action : uint8_t {
   RUN,
   DEFER,
@@ -26,33 +25,50 @@ enum class WorkloadStatus : uint8_t {
   FAILED
 };
 
-// Controlled failure reasons returned without changing the game state.
 enum class DecisionError : uint8_t {
   NONE,
   NOT_INITIALIZED,
   INVALID_ACTION,
   INVALID_GRID,
   INVALID_WORKLOAD,
+  INVALID_RATES,
+  INVALID_TIME,
   WORKLOAD_NOT_PENDING
 };
 
-// Synthetic electricity-system conditions for one decision round.
+// Synthetic data-centre conditions at one virtual time.
 struct GridState {
-  int capacity;
-  int renewablePercent;
-  int carbonIndex;
-  int thermalHeadroom;
+  int32_t capacityKw;
+  uint8_t renewablePct;
+  uint16_t co2eGPerKwh;
+  int16_t tempC;
+  int16_t tempLimitC;
+  uint16_t nowMin;
 };
 
-// Current compute workload and its service constraints.
+// One fictional customer workload and its service constraints.
 struct WorkloadState {
-  int energyCost;
-  int heatCost;
-  int value;
+  const char* customer;
+  const char* job;
+  int32_t energyKwh;
+  uint16_t durationMin;
+  int16_t tempRiseC;
+  int32_t contractEur;
   bool flexible;
-  int deadline;
-  int progress;
+  uint16_t deadlineMin;
+  uint8_t progressPct;
   WorkloadStatus status;
+};
+
+// Fictional educational rates. None are market or operational values.
+struct ScenarioRates {
+  int32_t co2eEurPerT;
+  int32_t overloadEurPerMw;
+  int32_t coolingEurPerC;
+  int32_t flexLateEur;
+  int32_t urgentLateEur;
+  uint8_t reducePct;
+  uint16_t deferMin;
 };
 
 // Complete, inspectable consequence of one attempted decision.
@@ -60,48 +76,64 @@ struct DecisionResult {
   bool accepted;
   DecisionError error;
   Action action;
-  int energyUsed;
-  int heatProduced;
-  int valueEarned;
-  int carbonPenalty;
-  int overloadPenalty;
-  int thermalPenalty;
-  int deadlinePenalty;
-  int scoreDelta;
-  int cumulativeScore;
-  int deadlineAfter;
+  int32_t energyUsedKwh;
+  int32_t demandKw;
+  int32_t overloadMw;
+  int32_t emissionsKg;
+  int16_t tempRiseUsedC;
+  int16_t projectedTempC;
+  int16_t tempLimitC;
+  int16_t excessTempC;
+  int32_t deliveredCents;
+  int32_t co2CostCents;
+  int32_t overloadCostCents;
+  int32_t coolingCostCents;
+  int32_t lateCostCents;
+  int32_t netCents;
+  int32_t totalCents;
+  int32_t nowMinAfter;
+  int32_t completionMin;
+  int32_t slackMinAfter;
   WorkloadStatus statusAfter;
 };
 
-// Owns the current grid, workload, and cumulative score.
+// Owns the current grid, workload, fictional rates, and accumulated outcome.
 class NodeBGame {
  public:
   NodeBGame();
 
-  // Start a new scenario and reset its cumulative score to zero.
-  bool begin(const GridState& grid, const WorkloadState& workload);
+  bool begin(
+      const GridState& grid,
+      const WorkloadState& workload,
+      const ScenarioRates& rates);
 
-  // Replace the grid conditions before the next decision round.
+  // Load new conditions after Defer without changing the advanced clock.
   bool setGrid(const GridState& grid);
 
-  // Apply one learner decision to the current workload.
   DecisionResult apply(Action action);
 
   bool isReady() const;
-  int score() const;
+  int32_t totalCents() const;
+  int32_t currentDemandKw() const;
+  int32_t slackMin() const;
+  bool hasResult() const;
   const GridState& grid() const;
   const WorkloadState& workload() const;
+  const ScenarioRates& rates() const;
+  const DecisionResult& lastResult() const;
 
-  // Public validators can later be reused by JSON and Serial interfaces.
   static bool isValidGrid(const GridState& grid);
   static bool isValidWorkload(const WorkloadState& workload);
+  static bool isValidRates(const ScenarioRates& rates);
 
  private:
-  // State is private so every change must pass through the class rules.
   GridState grid_;
   WorkloadState workload_;
-  int cumulativeScore_;
+  ScenarioRates rates_;
+  DecisionResult lastResult_;
+  int32_t totalCents_;
   bool ready_;
+  bool hasResult_;
 
   DecisionResult rejected(Action action, DecisionError error) const;
 };

@@ -1,7 +1,7 @@
 /*
  * GridMind Node B - Ordinary Feedback LED Adapter
  *
- * Converts a DecisionResult into one of three visible outcomes on D0 without
+ * Converts a DecisionResult into one of three visible net outcomes on D0 without
  * using delay(), so buttons and future network services can keep running.
  */
 

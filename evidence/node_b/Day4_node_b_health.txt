@@ -1,7 +1,0 @@
-HTTP/1.1 200 OK
-Content-Type: application/json
-Content-Length: 95
-Connection: keep-alive
-Keep-Alive: timeout=2000
-
-{"node":"node-b","role":"compute-station","status":"ok","wifiConnected":true,"uptimeMs":467745}

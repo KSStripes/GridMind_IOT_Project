@@ -31,7 +31,7 @@ void handleAction(Action action) {
   const Result result = game.apply(action);
 
   // Until Node A exists, an accepted Wait changes local facility conditions.
-  if (result.accepted && action == Action::WAIT) {
+  if (result.accepted && action == ACT_WAIT) {
     facilityIndex = (facilityIndex + 1) % FACILITY_COUNT;
     game.setFacility(FACILITIES[facilityIndex]);
   }
@@ -93,7 +93,7 @@ void loop() {
   web.update();
 
   // poll() returns true only for a newly debounced button press.
-  Action action = Action::RUN;
+  Action action = ACT_RUN;
   if (panel.poll(action)) {
     handleAction(action);
   }

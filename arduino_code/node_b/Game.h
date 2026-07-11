@@ -1,27 +1,28 @@
 // Game.h
-// Defines the small queue model shared by the sketch, dashboard and tests.
+// Defines the queue model shared by the sketch, dashboard and tests.
 // Game contains no Arduino pin or Wi-Fi code, so its rules are easy to test.
 #ifndef GRIDMIND_GAME_H
 #define GRIDMIND_GAME_H
 
 #include <stdint.h>
 
-enum class Action : uint8_t {
-  RUN,
-  WAIT,
-  CANCEL
+// Plain enums so values can be used without a class prefix.
+enum Action {
+  ACT_RUN,
+  ACT_WAIT,
+  ACT_CANCEL
 };
 
-enum class Reason : uint8_t {
-  COMPLETED,
-  QUEUED,
-  CANCELLED,
-  NO_CAPACITY,
-  NO_POWER,
-  TOO_HOT,
-  ALREADY_WAITED,
-  QUEUE_EMPTY,
-  INVALID_STATE
+enum Reason {
+  RSN_COMPLETED,
+  RSN_QUEUED,
+  RSN_CANCELLED,
+  RSN_NO_CAPACITY,
+  RSN_NO_POWER,
+  RSN_TOO_HOT,
+  RSN_ALREADY_WAITED,
+  RSN_QUEUE_EMPTY,
+  RSN_INVALID_STATE
 };
 
 struct Facility {

@@ -1,17 +1,32 @@
 // Panel.cpp
 // Reads active-low INPUT_PULLUP buttons and drives timed LED feedback.
-// No delay() calls are used after setup.
+// No delay() calls are used so the web server loop stays responsive.
 #include "Panel.h"
 
-Panel::Panel()
-    : buttons_{{D5, Action::RUN, HIGH, HIGH, 0},
-               {D6, Action::WAIT, HIGH, HIGH, 0},
-               {D7, Action::CANCEL, HIGH, HIGH, 0}},
-      ledMode_(LedMode::OFF),
-      ledOn_(false),
-      togglesLeft_(0),
-      blinkMs_(0),
-      changedAt_(0) {
+Panel::Panel() {
+  buttons_[0].pin = D5;
+  buttons_[0].action = ACT_RUN;
+  buttons_[0].rawState = HIGH;
+  buttons_[0].stableState = HIGH;
+  buttons_[0].changedAt = 0;
+
+  buttons_[1].pin = D6;
+  buttons_[1].action = ACT_WAIT;
+  buttons_[1].rawState = HIGH;
+  buttons_[1].stableState = HIGH;
+  buttons_[1].changedAt = 0;
+
+  buttons_[2].pin = D7;
+  buttons_[2].action = ACT_CANCEL;
+  buttons_[2].rawState = HIGH;
+  buttons_[2].stableState = HIGH;
+  buttons_[2].changedAt = 0;
+
+  ledMode_ = LED_OFF;
+  ledOn_ = false;
+  togglesLeft_ = 0;
+  blinkMs_ = 0;
+  changedAt_ = 0;
 }
 
 void Panel::begin() {
@@ -54,11 +69,11 @@ bool Panel::poll(Action& action) {
 }
 
 void Panel::show(const Result& result) {
-  // Rejected/negative: fast flashes; positive: steady; Wait: slow flashes.
+  // Rejected/negative: fast flashes; zero-money accept: slow flashes; positive: steady.
   if (!result.accepted || result.deltaCents < 0) {
     blink(3, 100);
   } else if (result.deltaCents > 0) {
-    ledMode_ = LedMode::STEADY;
+    ledMode_ = LED_STEADY;
     togglesLeft_ = 0;
     setLed(true);
   } else {
@@ -68,7 +83,7 @@ void Panel::show(const Result& result) {
 
 void Panel::update() {
   // Advance an active blink only when its interval has elapsed.
-  if (ledMode_ != LedMode::BLINKING) {
+  if (ledMode_ != LED_BLINKING) {
     return;
   }
 
@@ -82,7 +97,7 @@ void Panel::update() {
   togglesLeft_ -= 1;
   if (togglesLeft_ == 0) {
     setLed(false);
-    ledMode_ = LedMode::OFF;
+    ledMode_ = LED_OFF;
   }
 }
 
@@ -93,7 +108,7 @@ void Panel::setLed(bool on) {
 
 void Panel::blink(uint8_t flashes, unsigned long intervalMs) {
   // Starting ON means an N-flash pattern needs (N * 2 - 1) later toggles.
-  ledMode_ = LedMode::BLINKING;
+  ledMode_ = LED_BLINKING;
   togglesLeft_ = flashes * 2 - 1;
   blinkMs_ = intervalMs;
   changedAt_ = millis();

@@ -3,22 +3,20 @@
 // All money is stored as integer cents to avoid floating-point rounding.
 #include "Game.h"
 
-namespace {
-
-bool hasText(const char* text) {
+// Returns false if a string pointer is null or empty.
+static bool hasText(const char* text) {
   return text != 0 && text[0] != '\0';
 }
 
-}  // namespace
-
-Game::Game()
-    : facility_{false, false, 0, 0},
-      jobs_{},
-      jobCount_(0),
-      totalCents_(0),
-      ready_(false),
-      hasResult_(false),
-      lastResult_{} {
+Game::Game() {
+  facility_.capacityAvailable = false;
+  facility_.powerAvailable = false;
+  facility_.tempC = 0;
+  facility_.tempLimitC = 0;
+  jobCount_ = 0;
+  totalCents_ = 0;
+  ready_ = false;
+  hasResult_ = false;
 }
 
 bool Game::begin(
@@ -46,7 +44,6 @@ bool Game::begin(
   totalCents_ = 0;
   ready_ = true;
   hasResult_ = false;
-  lastResult_ = Result{};
   return true;
 }
 
@@ -61,39 +58,39 @@ bool Game::setFacility(const Facility& facility) {
 Result Game::apply(Action action) {
   // Actions cannot be processed before setup or after the queue is empty.
   if (!ready_) {
-    return finish(action, 0, false, Reason::INVALID_STATE, 0);
+    return finish(action, 0, false, RSN_INVALID_STATE, 0);
   }
   if (jobCount_ == 0) {
-    return finish(action, 0, false, Reason::QUEUE_EMPTY, 0);
+    return finish(action, 0, false, RSN_QUEUE_EMPTY, 0);
   }
 
   Job& job = jobs_[0];
   const char* jobName = job.name;
   const int16_t projectedTemp = facility_.tempC + job.tempRiseC;
 
-  if (action == Action::RUN) {
+  if (action == ACT_RUN) {
     // Run must pass capacity, electricity and temperature checks in order.
     if (!facility_.capacityAvailable) {
-      return finish(action, jobName, false, Reason::NO_CAPACITY, 0);
+      return finish(action, jobName, false, RSN_NO_CAPACITY, 0);
     }
     if (!facility_.powerAvailable) {
-      return finish(action, jobName, false, Reason::NO_POWER, 0);
+      return finish(action, jobName, false, RSN_NO_POWER, 0);
     }
     if (projectedTemp > facility_.tempLimitC) {
-      return finish(action, jobName, false, Reason::TOO_HOT, 0);
+      return finish(action, jobName, false, RSN_TOO_HOT, 0);
     }
 
     // A successful Run earns the value, raises temperature and removes the job.
     const int32_t value = job.valueCents;
     facility_.tempC = projectedTemp;
     removeFront();
-    return finish(action, jobName, true, Reason::COMPLETED, value);
+    return finish(action, jobName, true, RSN_COMPLETED, value);
   }
 
-  if (action == Action::WAIT) {
+  if (action == ACT_WAIT) {
     // Each job may move to the queue rear only once.
     if (!job.canWait) {
-      return finish(action, jobName, false, Reason::ALREADY_WAITED, 0);
+      return finish(action, jobName, false, RSN_ALREADY_WAITED, 0);
     }
 
     // Shift the remaining jobs left, then place this job at the back.
@@ -103,17 +100,17 @@ Result Game::apply(Action action) {
       jobs_[i - 1] = jobs_[i];
     }
     jobs_[jobCount_ - 1] = deferred;
-    return finish(action, jobName, true, Reason::QUEUED, 0);
+    return finish(action, jobName, true, RSN_QUEUED, 0);
   }
 
-  if (action == Action::CANCEL) {
+  if (action == ACT_CANCEL) {
     // Cancel removes the job and records its penalty as negative money.
     const int32_t penalty = -job.penaltyCents;
     removeFront();
-    return finish(action, jobName, true, Reason::CANCELLED, penalty);
+    return finish(action, jobName, true, RSN_CANCELLED, penalty);
   }
 
-  return finish(action, jobName, false, Reason::INVALID_STATE, 0);
+  return finish(action, jobName, false, RSN_INVALID_STATE, 0);
 }
 
 bool Game::isReady() const {
@@ -167,13 +164,12 @@ Result Game::finish(
     totalCents_ += deltaCents;
   }
 
-  lastResult_ = {
-      action,
-      jobName,
-      accepted,
-      reason,
-      deltaCents,
-      totalCents_};
+  lastResult_.action = action;
+  lastResult_.jobName = jobName;
+  lastResult_.accepted = accepted;
+  lastResult_.reason = reason;
+  lastResult_.deltaCents = deltaCents;
+  lastResult_.totalCents = totalCents_;
   hasResult_ = true;
   return lastResult_;
 }
@@ -188,36 +184,24 @@ void Game::removeFront() {
 
 const char* actionName(Action action) {
   switch (action) {
-    case Action::RUN:
-      return "run";
-    case Action::WAIT:
-      return "wait";
-    case Action::CANCEL:
-      return "cancel";
+    case ACT_RUN:    return "run";
+    case ACT_WAIT:   return "wait";
+    case ACT_CANCEL: return "cancel";
   }
   return "unknown";
 }
 
 const char* reasonName(Reason reason) {
   switch (reason) {
-    case Reason::COMPLETED:
-      return "completed";
-    case Reason::QUEUED:
-      return "queued";
-    case Reason::CANCELLED:
-      return "cancelled";
-    case Reason::NO_CAPACITY:
-      return "no_capacity";
-    case Reason::NO_POWER:
-      return "no_power";
-    case Reason::TOO_HOT:
-      return "too_hot";
-    case Reason::ALREADY_WAITED:
-      return "already_waited";
-    case Reason::QUEUE_EMPTY:
-      return "queue_empty";
-    case Reason::INVALID_STATE:
-      return "invalid_state";
+    case RSN_COMPLETED:      return "completed";
+    case RSN_QUEUED:         return "queued";
+    case RSN_CANCELLED:      return "cancelled";
+    case RSN_NO_CAPACITY:    return "no_capacity";
+    case RSN_NO_POWER:       return "no_power";
+    case RSN_TOO_HOT:        return "too_hot";
+    case RSN_ALREADY_WAITED: return "already_waited";
+    case RSN_QUEUE_EMPTY:    return "queue_empty";
+    case RSN_INVALID_STATE:  return "invalid_state";
   }
   return "unknown";
 }

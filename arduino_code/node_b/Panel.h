@@ -27,10 +27,10 @@ class Panel {
     unsigned long changedAt;
   };
 
-  enum class LedMode : uint8_t {
-    OFF,
-    STEADY,
-    BLINKING
+  enum LedMode {
+    LED_OFF,
+    LED_STEADY,
+    LED_BLINKING
   };
 
   static const uint8_t BUTTON_COUNT = 3;

@@ -18,15 +18,15 @@ class Web {
   bool connected() const;
   IPAddress address() const;
 
+  void handlePage();
+  void handleHealth();
+  void handleStatus();
+
  private:
   ESP8266WebServer server_;
   const char* ssid_;
   const char* password_;
   const Game& game_;
-
-  void handlePage();
-  void handleHealth();
-  void handleStatus();
 };
 
 #endif

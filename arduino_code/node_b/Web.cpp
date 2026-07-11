@@ -1,33 +1,25 @@
 // Web.cpp
-// Connects to Wi-Fi, registers the three GET routes and builds compact JSON.
+// Connects to Wi-Fi, registers three GET routes and builds JSON and HTML.
 // The web layer displays state but does not own queue or money rules.
 #include <Arduino.h>
 
-#include "Page.h"
 #include "Web.h"
 
-namespace {
+// Global pointer so plain functions can forward calls to the Web instance.
+// The ESP8266WebServer requires plain (non-member) callback functions.
+static Web* g_web = 0;
 
-void addJsonString(String& json, const char* value) {
-  // Escape the two characters that could break a JSON string value.
-  json += '"';
-  while (value != 0 && *value != '\0') {
-    if (*value == '"' || *value == '\\') {
-      json += '\\';
-    }
-    json += *value;
-    value += 1;
-  }
-  json += '"';
-}
-
-}  // namespace
+static void onPage()   { g_web->handlePage(); }
+static void onHealth() { g_web->handleHealth(); }
+static void onStatus() { g_web->handleStatus(); }
 
 Web::Web(const char* ssid, const char* password, const Game& game)
     : server_(80), ssid_(ssid), password_(password), game_(game) {
 }
 
 bool Web::begin() {
+  g_web = this;
+
   // Join as a station and allow the ESP8266 to reconnect after signal loss.
   WiFi.mode(WIFI_STA);
   WiFi.hostname("gridmind-node-b");
@@ -41,9 +33,9 @@ bool Web::begin() {
   }
 
   // Register the minimum coursework routes, then start the HTTP server.
-  server_.on("/", HTTP_GET, [this]() { handlePage(); });
-  server_.on("/api/health", HTTP_GET, [this]() { handleHealth(); });
-  server_.on("/api/status", HTTP_GET, [this]() { handleStatus(); });
+  server_.on("/",           HTTP_GET, onPage);
+  server_.on("/api/health", HTTP_GET, onHealth);
+  server_.on("/api/status", HTTP_GET, onStatus);
   server_.begin();
   return connected();
 }
@@ -62,7 +54,86 @@ IPAddress Web::address() const {
 }
 
 void Web::handlePage() {
-  server_.send_P(200, PSTR("text/html; charset=utf-8"), PAGE_HTML);
+  // Build a simple HTML page with current game values baked in.
+  // The meta-refresh tag reloads the page every 2 seconds automatically
+  // so no JavaScript is needed.
+  if (!game_.isReady()) {
+    server_.send(200, "text/html",
+      "<html><body><h1>GridMind Node B</h1><p>Starting up...</p></body></html>");
+    return;
+  }
+
+  const Facility& f = game_.facility();
+  const Job* job = game_.currentJob();
+
+  String html = "<!doctype html><html><head>";
+  html += "<meta charset='utf-8'>";
+  html += "<meta http-equiv='refresh' content='2'>";
+  html += "<title>GridMind Node B</title>";
+  html += "</head><body>";
+  html += "<h1>GridMind Compute Station</h1>";
+
+  html += "<h2>Facility</h2>";
+  html += "<p>Capacity: ";
+  html += f.capacityAvailable ? "Available" : "Unavailable";
+  html += "</p>";
+  html += "<p>Power: ";
+  html += f.powerAvailable ? "Available" : "Unavailable";
+  html += "</p>";
+  html += "<p>Temperature: ";
+  html += String(f.tempC);
+  html += " C (limit ";
+  html += String(f.tempLimitC);
+  html += " C)</p>";
+
+  html += "<h2>Current Job</h2>";
+  if (job == 0) {
+    html += "<p>No jobs remaining</p>";
+  } else {
+    html += "<p>Job: ";
+    html += job->name;
+    html += "</p>";
+    html += "<p>Value: EUR ";
+    html += String(job->valueCents / 100);
+    html += "</p>";
+    html += "<p>Penalty: EUR ";
+    html += String(job->penaltyCents / 100);
+    html += "</p>";
+    html += "<p>Temp rise: +";
+    html += String(job->tempRiseC);
+    html += " C</p>";
+    html += "<p>Wait available: ";
+    html += job->canWait ? "Yes" : "No";
+    html += "</p>";
+  }
+  html += "<p>Queue size: ";
+  html += String(game_.queueSize());
+  html += "</p>";
+
+  if (game_.hasResult()) {
+    const Result& r = game_.lastResult();
+    html += "<h2>Last Action</h2>";
+    html += "<p>Action: ";
+    html += actionName(r.action);
+    if (r.jobName != 0) {
+      html += " - ";
+      html += r.jobName;
+    }
+    html += "</p>";
+    html += "<p>Result: ";
+    html += reasonName(r.reason);
+    html += "</p>";
+    html += "<p>Money change: EUR ";
+    html += String(r.deltaCents / 100);
+    html += "</p>";
+  }
+
+  html += "<h2>Total: EUR ";
+  html += String(game_.totalCents() / 100);
+  html += "</h2>";
+  html += "</body></html>";
+
+  server_.send(200, "text/html", html);
 }
 
 void Web::handleHealth() {
@@ -79,22 +150,17 @@ void Web::handleHealth() {
 }
 
 void Web::handleStatus() {
-  // Return a controlled error instead of incomplete state before game setup.
   if (!game_.isReady()) {
-    server_.send(
-        503,
-        "application/json",
-        "{\"error\":{\"code\":\"game_not_ready\","
-        "\"message\":\"Node B game has not been initialised.\"}}");
+    server_.send(503, "application/json",
+      "{\"error\":\"game not ready\"}");
     return;
   }
 
-  // Read one authoritative snapshot from Game and serialize each section.
+  // Read one snapshot from Game and build JSON for each section.
   const Facility& facility = game_.facility();
   const Job* job = game_.currentJob();
-  String json;
-  json.reserve(650);
-  json = "{\"facility\":{";
+
+  String json = "{\"facility\":{";
   json += "\"capacityAvailable\":";
   json += facility.capacityAvailable ? "true" : "false";
   json += ",\"powerAvailable\":";
@@ -109,9 +175,9 @@ void Web::handleStatus() {
   if (job == 0) {
     json += "null";
   } else {
-    json += "{\"name\":";
-    addJsonString(json, job->name);
-    json += ",\"tempRiseC\":";
+    json += "{\"name\":\"";
+    json += job->name;
+    json += "\",\"tempRiseC\":";
     json += String(job->tempRiseC);
     json += ",\"valueCents\":";
     json += String(job->valueCents);
@@ -125,17 +191,19 @@ void Web::handleStatus() {
   json += ",\"queueSize\":";
   json += String(game_.queueSize());
   json += ",\"result\":";
+
   // No result exists until the learner attempts the first action.
   if (!game_.hasResult()) {
     json += "null";
   } else {
-    // result.job names the processed job; top-level job is the new queue front.
     const Result& result = game_.lastResult();
     json += "{\"job\":";
     if (result.jobName == 0) {
       json += "null";
     } else {
-      addJsonString(json, result.jobName);
+      json += "\"";
+      json += result.jobName;
+      json += "\"";
     }
     json += ",\"action\":\"";
     json += actionName(result.action);

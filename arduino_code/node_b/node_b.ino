@@ -1,20 +1,23 @@
 // GridMind Node B - contract queue station
 // Three buttons apply Run, Wait or Cancel to a fictional job queue.
-// One Game object supplies Serial output, LED feedback, JSON and the dashboard.
-#include "Secrets.h"
-#include "Game.h"
-#include "Panel.h"
-#include "Scenarios.h"
-#include "Tests.h"
-#include "Web.h"
+// One Game object supplies shared state to Serial, Panel and Web outputs.
+#include "Secrets_b.h"
+#include "Game_b.h"
+#include "Panel_b.h"
+#include "Scenarios_b.h"
+#include "Tests_b.h"
+#include "Web_b.h"
 
 const bool RUN_STARTUP_TESTS = true;
+// Node B polls this read-only Node A route for live facility conditions.
+// Recheck this address if the hotspot gives Node A a different IP.
+const char NODE_A_STATUS_URL[] = "http://172.20.10.4/api/status";
 
 // These are the only long-lived objects used by setup() and loop().
 Game game;
 Panel panel;
-Web web(WIFI_SSID, WIFI_PASSWORD, game);
-uint8_t facilityIndex = 0;
+// Web serves Node B's routes and also performs the Node A polling.
+Web web(WIFI_SSID, WIFI_PASSWORD, NODE_A_STATUS_URL, game);
 
 void printCurrentJob() {
   const Job* job = game.currentJob();
@@ -27,14 +30,9 @@ void printCurrentJob() {
 }
 
 void handleAction(Action action) {
-  // Every physical decision passes through the same game-rule function.
+  // Game now rejects Run if Web has not supplied fresh Node A data.
+  // Wait and Cancel remain local queue decisions.
   const Result result = game.apply(action);
-
-  // Until Node A exists, an accepted Wait changes local facility conditions.
-  if (result.accepted && action == ACT_WAIT) {
-    facilityIndex = (facilityIndex + 1) % FACILITY_COUNT;
-    game.setFacility(FACILITIES[facilityIndex]);
-  }
 
   // Print a short human-readable record of the result and new queue state.
   Serial.println();
@@ -82,6 +80,8 @@ void setup() {
   if (wifiConnected) {
     Serial.println(web.address());
   }
+  Serial.print("Node A status: ");
+  Serial.println(NODE_A_STATUS_URL);
 
   Serial.println("Buttons: Run=D5, Wait=D6, Cancel=D7");
   printCurrentJob();

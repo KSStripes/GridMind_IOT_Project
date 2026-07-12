@@ -1,7 +1,7 @@
-// Panel.cpp
+// Panel_b.cpp
 // Reads active-low INPUT_PULLUP buttons and drives timed LED feedback.
 // No delay() calls are used so the web server loop stays responsive.
-#include "Panel.h"
+#include "Panel_b.h"
 
 Panel::Panel() {
   buttons_[0].pin = D5;

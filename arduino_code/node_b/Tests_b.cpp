@@ -1,10 +1,11 @@
-// Tests.cpp
+// Tests_b.cpp
 // Exercises Game without buttons, Wi-Fi or delays.
 // Each function covers one important learner-visible rule.
 #include <string.h>
 
-#include "Game.h"
-#include "Tests.h"
+#include "Game_b.h"
+#include "Tests_b.h"
+#include "Web_b.h"
 
 static bool testSuccessfulRun() {
   const Facility facility = {true, true, 22, 28};
@@ -33,6 +34,13 @@ static bool testRunChecksEveryCondition() {
   }
   if (!game.setFacility({true, true, 27, 28}) ||
       game.apply(ACT_RUN).reason != RSN_TOO_HOT) {
+    return false;
+  }
+  if (!game.setFacility({true, true, 22, 28})) {
+    return false;
+  }
+  game.setFacilityAvailable(false);
+  if (game.apply(ACT_RUN).reason != RSN_INVALID_STATE) {
     return false;
   }
   return game.queueSize() == 1 && game.totalCents() == 0;
@@ -92,13 +100,41 @@ static bool testTotalAcrossTwoJobs() {
          game.apply(ACT_RUN).reason == RSN_QUEUE_EMPTY;
 }
 
+static bool testFacilityJsonValidation() {
+  // Proves the exact Node A contract without requiring Wi-Fi during startup.
+  uint8_t scenarioId = 0;
+  Facility facility;
+  const String valid =
+      "{\"node\":\"node-a\",\"scenarioId\":2,"
+      "\"capacityAvailable\":false,\"powerAvailable\":true,"
+      "\"tempC\":24,\"tempLimitC\":28}";
+
+  if (!Web::parseFacilityStatus(valid, scenarioId, facility) ||
+      scenarioId != 2 || facility.capacityAvailable ||
+      !facility.powerAvailable || facility.tempC != 24 ||
+      facility.tempLimitC != 28) {
+    return false;
+  }
+
+  const String missingField =
+      "{\"scenarioId\":2,\"capacityAvailable\":true,"
+      "\"tempC\":24,\"tempLimitC\":28}";
+  const String invalidRange =
+      "{\"scenarioId\":2,\"capacityAvailable\":true,"
+      "\"powerAvailable\":true,\"tempC\":99,\"tempLimitC\":28}";
+
+  return !Web::parseFacilityStatus(missingField, scenarioId, facility) &&
+         !Web::parseFacilityStatus(invalidRange, scenarioId, facility);
+}
+
 uint8_t Tests::run() {
-  // Count passes so Serial can show one simple RESULT: 5/5 PASS line.
+  // Count passes so Serial can show one simple RESULT line.
   uint8_t passed = 0;
   passed += testSuccessfulRun()           ? 1 : 0;
   passed += testRunChecksEveryCondition() ? 1 : 0;
   passed += testWaitMovesJobOnce()        ? 1 : 0;
   passed += testCancelAppliesPenalty()    ? 1 : 0;
   passed += testTotalAcrossTwoJobs()      ? 1 : 0;
+  passed += testFacilityJsonValidation()  ? 1 : 0;
   return passed;
 }

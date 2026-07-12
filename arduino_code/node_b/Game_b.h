@@ -1,8 +1,8 @@
-// Game.h
+// Game_b.h
 // Defines the queue model shared by the sketch, dashboard and tests.
 // Game contains no Arduino pin or Wi-Fi code, so its rules are easy to test.
-#ifndef GRIDMIND_GAME_H
-#define GRIDMIND_GAME_H
+#ifndef GRIDMIND_NODE_B_GAME_H
+#define GRIDMIND_NODE_B_GAME_H
 
 #include <stdint.h>
 
@@ -56,9 +56,13 @@ class Game {
 
   bool begin(const Facility& facility, const Job jobs[], uint8_t jobCount);
   bool setFacility(const Facility& facility);
+  // Web uses this link flag without replacing the last valid facility.
+  void setFacilityAvailable(bool available);
   Result apply(Action action);
 
   bool isReady() const;
+  // False means Run is disabled until valid Node A data returns.
+  bool facilityAvailable() const;
   const Facility& facility() const;
   const Job* currentJob() const;
   uint8_t queueSize() const;
@@ -75,6 +79,7 @@ class Game {
   uint8_t jobCount_;
   int32_t totalCents_;
   bool ready_;
+  bool facilityAvailable_;
   bool hasResult_;
   Result lastResult_;
 

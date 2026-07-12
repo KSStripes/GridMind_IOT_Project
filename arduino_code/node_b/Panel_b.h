@@ -1,12 +1,12 @@
-// Panel.h
+// Panel_b.h
 // Owns the three buttons and the single feedback LED.
 // poll() and update() are non-blocking so the web server stays responsive.
-#ifndef GRIDMIND_PANEL_H
-#define GRIDMIND_PANEL_H
+#ifndef GRIDMIND_NODE_B_PANEL_H
+#define GRIDMIND_NODE_B_PANEL_H
 
 #include <Arduino.h>
 
-#include "Game.h"
+#include "Game_b.h"
 
 class Panel {
  public:

@@ -1,12 +1,13 @@
-// Scenarios.h
+// Scenarios_b.h
 // Contains all fictional starting data in one short, editable file.
 // Values are teaching examples, not real facility or contract data.
-#ifndef GRIDMIND_SCENARIOS_H
-#define GRIDMIND_SCENARIOS_H
+#ifndef GRIDMIND_NODE_B_SCENARIOS_H
+#define GRIDMIND_NODE_B_SCENARIOS_H
 
-#include "Game.h"
+#include "Game_b.h"
 
-// An accepted Wait advances to the next simple facility condition.
+// These values mirror Node A and provide the initial pre-poll placeholder.
+// During integration, only valid Node A responses update the live facility.
 static const Facility FACILITIES[] = {
     {true, true, 26, 28},
     {false, true, 24, 28},

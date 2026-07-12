@@ -1,7 +1,7 @@
-// Game.cpp
+// Game_b.cpp
 // Implements validation, Run/Wait/Cancel rules, queue movement and money.
 // All money is stored as integer cents to avoid floating-point rounding.
-#include "Game.h"
+#include "Game_b.h"
 
 // Returns false if a string pointer is null or empty.
 static bool hasText(const char* text) {
@@ -16,6 +16,7 @@ Game::Game() {
   jobCount_ = 0;
   totalCents_ = 0;
   ready_ = false;
+  facilityAvailable_ = false;
   hasResult_ = false;
 }
 
@@ -43,6 +44,7 @@ bool Game::begin(
   jobCount_ = jobCount;
   totalCents_ = 0;
   ready_ = true;
+  facilityAvailable_ = true;
   hasResult_ = false;
   return true;
 }
@@ -55,6 +57,10 @@ bool Game::setFacility(const Facility& facility) {
   return true;
 }
 
+void Game::setFacilityAvailable(bool available) {
+  facilityAvailable_ = available;
+}
+
 Result Game::apply(Action action) {
   // Actions cannot be processed before setup or after the queue is empty.
   if (!ready_) {
@@ -62,6 +68,11 @@ Result Game::apply(Action action) {
   }
   if (jobCount_ == 0) {
     return finish(action, 0, false, RSN_QUEUE_EMPTY, 0);
+  }
+  // Never admit work using missing, stale or rejected Node A data.
+  // Wait and Cancel do not depend on facility conditions.
+  if (action == ACT_RUN && !facilityAvailable_) {
+    return finish(action, jobs_[0].name, false, RSN_INVALID_STATE, 0);
   }
 
   Job& job = jobs_[0];
@@ -115,6 +126,10 @@ Result Game::apply(Action action) {
 
 bool Game::isReady() const {
   return ready_;
+}
+
+bool Game::facilityAvailable() const {
+  return facilityAvailable_;
 }
 
 const Facility& Game::facility() const {

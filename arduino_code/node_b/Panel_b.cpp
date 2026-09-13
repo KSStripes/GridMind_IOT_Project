@@ -4,23 +4,15 @@
 #include "Panel_b.h"
 
 Panel::Panel() {
-  buttons_[0].pin = D5;
-  buttons_[0].action = ACT_RUN;
-  buttons_[0].rawState = HIGH;
-  buttons_[0].stableState = HIGH;
-  buttons_[0].changedAt = 0;
-
-  buttons_[1].pin = D6;
-  buttons_[1].action = ACT_WAIT;
-  buttons_[1].rawState = HIGH;
-  buttons_[1].stableState = HIGH;
-  buttons_[1].changedAt = 0;
-
-  buttons_[2].pin = D7;
-  buttons_[2].action = ACT_CANCEL;
-  buttons_[2].rawState = HIGH;
-  buttons_[2].stableState = HIGH;
-  buttons_[2].changedAt = 0;
+  const uint8_t pins[BUTTON_COUNT] = {D5, D6, D7};
+  const Action actions[BUTTON_COUNT] = {ACT_RUN, ACT_WAIT, ACT_CANCEL};
+  for (uint8_t i = 0; i < BUTTON_COUNT; i++) {
+    buttons_[i].pin = pins[i];
+    buttons_[i].action = actions[i];
+    buttons_[i].rawState = HIGH;
+    buttons_[i].stableState = HIGH;
+    buttons_[i].changedAt = 0;
+  }
 
   ledMode_ = LED_OFF;
   ledOn_ = false;

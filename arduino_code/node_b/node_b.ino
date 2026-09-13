@@ -69,7 +69,7 @@ void setup() {
   }
 
   // Start the real queue from the first facility and fictional job list.
-  if (!game.begin(FACILITIES[0], JOBS, JOB_COUNT)) {
+  if (!game.begin(INITIAL_FACILITY, JOBS, JOB_COUNT)) {
     Serial.println("ERROR: game did not start.");
   }
 

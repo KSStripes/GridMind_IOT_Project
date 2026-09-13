@@ -72,7 +72,7 @@ class Game {
 
  private:
   // A fixed array avoids dynamic memory on the ESP8266.
-  static const uint8_t MAX_JOBS = 5;
+  static const uint8_t MAX_JOBS = 10;
 
   Facility facility_;
   Job jobs_[MAX_JOBS];
@@ -84,7 +84,6 @@ class Game {
   Result lastResult_;
 
   static bool validFacility(const Facility& facility);
-  static bool validJob(const Job& job);
   Result finish(Action action, const char* jobName, bool accepted,
                 Reason reason, int32_t deltaCents);
   void removeFront();

@@ -3,11 +3,6 @@
 // All money is stored as integer cents to avoid floating-point rounding.
 #include "Game_b.h"
 
-// Returns false if a string pointer is null or empty.
-static bool hasText(const char* text) {
-  return text != 0 && text[0] != '\0';
-}
-
 Game::Game() {
   facility_.capacityAvailable = false;
   facility_.powerAvailable = false;
@@ -24,16 +19,9 @@ bool Game::begin(
     const Facility& facility,
     const Job jobs[],
     uint8_t jobCount) {
-  // Reject invalid starting data before changing any game state.
   if (!validFacility(facility) || jobs == 0 ||
       jobCount == 0 || jobCount > MAX_JOBS) {
     return false;
-  }
-
-  for (uint8_t i = 0; i < jobCount; i++) {
-    if (!validJob(jobs[i])) {
-      return false;
-    }
   }
 
   // Copy the supplied scenarios into the game's fixed local storage.
@@ -159,13 +147,6 @@ const Result& Game::lastResult() const {
 bool Game::validFacility(const Facility& facility) {
   return facility.tempC >= 0 && facility.tempC <= 60 &&
          facility.tempLimitC >= 0 && facility.tempLimitC <= 60;
-}
-
-bool Game::validJob(const Job& job) {
-  return hasText(job.name) &&
-         job.tempRiseC >= 0 && job.tempRiseC <= 15 &&
-         job.valueCents > 0 && job.valueCents <= 100000000 &&
-         job.penaltyCents > 0 && job.penaltyCents <= 100000000;
 }
 
 Result Game::finish(

@@ -6,7 +6,8 @@
 #include "Web_b.h"
 
 // Poll often enough for the dashboards while allowing brief packet loss.
-static const unsigned long POLL_INTERVAL_MS = 2000;
+// Poll Node A once per second as project brief requested 1 Hz rate
+static const unsigned long POLL_INTERVAL_MS = 1000;
 static const unsigned long FACILITY_STALE_MS = 6000;
 static const uint16_t HTTP_TIMEOUT_MS = 750;
 

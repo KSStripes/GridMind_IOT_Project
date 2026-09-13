@@ -33,8 +33,7 @@ and its facility, contract and financial values are fictional.
 - Breadboards and jumper wires
 - A shared 2.4 GHz Wi-Fi network
 
-The full pin tables and behaviour are documented in
-[Node A](docs/node_a.md) and [Node B](docs/node_b.md).
+The full pin tables and behaviour are documented in node_a.md and node_b.md.
 
 ## Software and dependencies
 

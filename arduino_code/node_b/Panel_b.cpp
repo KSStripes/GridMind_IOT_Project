@@ -1,6 +1,8 @@
-// Panel_b.cpp
-// Reads active-low INPUT_PULLUP buttons and drives timed LED feedback.
-// No delay() calls are used so the web server loop stays responsive.
+/*
+  Reads Node B's active-low buttons and controls the timed result LED.
+  It avoids delay() so the web server can keep responding.
+  Dependencies: Arduino core through Panel_b.h.
+*/
 #include "Panel_b.h"
 
 Panel::Panel() {

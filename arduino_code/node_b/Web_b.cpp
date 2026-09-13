@@ -1,12 +1,14 @@
-// GridMind Node B network layer.
-// Serves Node B routes and polls validated facility data from Node A.
+/*
+  Connects Node B to Wi-Fi, serves its web routes and polls Node A.
+  Incoming facility data is checked before it is passed to the game.
+  Dependencies: Arduino core, ESP8266HTTPClient and Web_b.h.
+*/
 #include <Arduino.h>
 #include <ESP8266HTTPClient.h>
 
 #include "Web_b.h"
 
-// Poll often enough for the dashboards while allowing brief packet loss.
-// Poll Node A once per second as project brief requested 1 Hz rate
+// Poll Node A once per second while allowing for brief packet loss.
 static const unsigned long POLL_INTERVAL_MS = 1000;
 static const unsigned long FACILITY_STALE_MS = 6000;
 static const uint16_t HTTP_TIMEOUT_MS = 750;

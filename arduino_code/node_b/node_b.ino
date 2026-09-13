@@ -1,6 +1,8 @@
-// GridMind Node B - contract queue station
-// Three buttons apply Run, Wait or Cancel to a fictional job queue.
-// One Game object supplies shared state to Serial, Panel and Web outputs.
+/*
+  GridMind Node B - contract queue station.
+  This sketch joins the job queue, buttons, result LED and web service.
+  Dependencies: ESP8266 Arduino core and the Node B project files below.
+*/
 #include "Secrets_b.h"
 #include "Game_b.h"
 #include "Panel_b.h"

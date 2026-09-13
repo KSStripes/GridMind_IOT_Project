@@ -1,6 +1,8 @@
-// Game_b.cpp
-// Implements validation, Run/Wait/Cancel rules, queue movement and money.
-// All money is stored as integer cents to avoid floating-point rounding.
+/*
+  Applies Node B's Run, Wait and Cancel rules and updates the job queue.
+  Money is stored as integer cents to avoid rounding errors.
+  Dependencies: Game_b.h.
+*/
 #include "Game_b.h"
 
 Game::Game() {
@@ -24,7 +26,7 @@ bool Game::begin(
     return false;
   }
 
-  // Copy the supplied scenarios into the game's fixed local storage.
+  // Copy the facility state and jobs into the game's fixed local storage.
   facility_ = facility;
   for (uint8_t i = 0; i < jobCount; i++) {
     jobs_[i] = jobs[i];

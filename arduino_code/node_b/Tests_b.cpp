@@ -1,6 +1,8 @@
-// Tests_b.cpp
-// Exercises Game without buttons, Wi-Fi or delays.
-// Each function covers one important learner-visible rule.
+/*
+  Checks Node B's main learner decisions and its handling of Node A data.
+  The game tests do not need physical buttons, Wi-Fi or delays.
+  Dependencies: standard string functions and the listed Node B headers.
+*/
 #include <string.h>
 
 #include "Game_b.h"

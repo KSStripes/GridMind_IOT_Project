@@ -1,6 +1,8 @@
-// Scenarios_b.h
-// Contains all fictional starting data in one short, editable file.
-// Values are teaching examples, not real facility or contract data.
+/*
+  Stores Node B's fictional contract queue and starting facility value.
+  The values are teaching examples rather than real contract data.
+  Dependencies: Game_b.h.
+*/
 #ifndef GRIDMIND_NODE_B_SCENARIOS_H
 #define GRIDMIND_NODE_B_SCENARIOS_H
 

@@ -1,6 +1,8 @@
-// Panel_b.h
-// Owns the three buttons and the single feedback LED.
-// poll() and update() are non-blocking so the web server stays responsive.
+/*
+  Defines Node B's Run, Wait and Cancel buttons and its result LED.
+  Button and LED updates do not block the web server.
+  Dependencies: Arduino core and Game_b.h.
+*/
 #ifndef GRIDMIND_NODE_B_PANEL_H
 #define GRIDMIND_NODE_B_PANEL_H
 

@@ -1,5 +1,7 @@
-// Tests_b.h
-// Exposes the deterministic game and integration tests run during startup.
+/*
+  Declares Node B's six startup checks for its rules and Node A data.
+  Dependencies: standard integer types only.
+*/
 #ifndef GRIDMIND_NODE_B_TESTS_H
 #define GRIDMIND_NODE_B_TESTS_H
 

@@ -1,6 +1,8 @@
-// Web_b.h
-// Provides Node B's server routes and polls Node A's read-only status route.
-// Valid remote conditions update the same Game used by physical controls.
+/*
+  Defines Node B's Wi-Fi service, dashboard and polling of Node A.
+  Valid Node A data updates the same game used by the physical buttons.
+  Dependencies: ESP8266WiFi, ESP8266WebServer and Game_b.h.
+*/
 #ifndef GRIDMIND_NODE_B_WEB_H
 #define GRIDMIND_NODE_B_WEB_H
 

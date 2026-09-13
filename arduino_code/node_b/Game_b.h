@@ -1,6 +1,8 @@
-// Game_b.h
-// Defines the queue model shared by the sketch, dashboard and tests.
-// Game contains no Arduino pin or Wi-Fi code, so its rules are easy to test.
+/*
+  Defines Node B's contracts, facility data, decisions and queue model.
+  It contains no pin or Wi-Fi code, which keeps the rules easy to test.
+  Dependencies: standard integer types only.
+*/
 #ifndef GRIDMIND_NODE_B_GAME_H
 #define GRIDMIND_NODE_B_GAME_H
 

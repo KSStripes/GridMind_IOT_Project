@@ -1,10 +1,5 @@
 # GridMind
 
-GridMind is a student IoT project that uses a physical serious game to explain
-simple data-centre workload decisions.
-
-# GridMind
-
 GridMind is a two-node physical IoT learning game. It introduces simple
 data-centre workload decisions by asking the learner whether to run, wait or
 cancel fictional contracts under changing facility conditions.
@@ -15,8 +10,7 @@ and its facility, contract and financial values are fictional.
 ## System overview
 
 - **Node A - facility station:** cycles through five fixed facility scenarios
-  using one button. Three LEDs show capacity, electricity and temperature
-  warning states.
+  using one button. Three LEDs show the overall Safe, Caution or Blocked state.
 - **Node B - contract station:** presents ten fictional contracts. Run, Wait and
   Cancel buttons change the queue, financial total and result LED.
 - Both ESP8266 boards provide a read-only browser dashboard and REST/HTTP JSON
@@ -33,7 +27,8 @@ and its facility, contract and financial values are fictional.
 - Breadboards and jumper wires
 - A shared 2.4 GHz Wi-Fi network
 
-The full pin tables and behaviour are documented in node_a.md and node_b.md.
+The files `node_a.md` and `node_b.md` contain the full pin tables and behaviour
+for each station.
 
 ## Software and dependencies
 
@@ -119,5 +114,6 @@ the controls for the learning game.
 
 ## Safety
 
-- ESP8266 GPIO uses 3.3 V. Cannot use 5 V with a GPIO pin.
+- ESP8266 GPIO uses 3.3 V. Do not apply 5 V to a GPIO pin.
+- Disconnect power before changing the breadboard wiring.
 - Use a 220-ohm resistor with each external LED.

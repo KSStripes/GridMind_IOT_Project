@@ -11,9 +11,9 @@ Panel::Panel()
 }
 
 void Panel::begin() {
-  pinMode(CAPACITY_LED_PIN, OUTPUT);
-  pinMode(ELECTRICITY_LED_PIN, OUTPUT);
-  pinMode(TEMP_LED_PIN, OUTPUT);
+  pinMode(GREEN_LED_PIN, OUTPUT);
+  pinMode(YELLOW_LED_PIN, OUTPUT);
+  pinMode(RED_LED_PIN, OUTPUT);
   pinMode(BUTTON_PIN, INPUT_PULLUP);
 
   // Read the real startup level so booting cannot create a false press.
@@ -41,10 +41,12 @@ bool Panel::pollScenarioButton() {
 
 void Panel::show(
     const FacilityScenario& scenario, bool temperatureWarning) {
-  // The LEDs are a direct physical view of the current Facility state.
-  digitalWrite(CAPACITY_LED_PIN,
-               scenario.capacityAvailable ? HIGH : LOW);
-  digitalWrite(ELECTRICITY_LED_PIN,
-               scenario.powerAvailable ? HIGH : LOW);
-  digitalWrite(TEMP_LED_PIN, temperatureWarning ? HIGH : LOW);
+  const bool blocked = !scenario.capacityAvailable ||
+                       !scenario.powerAvailable ||
+                       scenario.tempC >= scenario.tempLimitC;
+  const bool caution = !blocked && temperatureWarning;
+
+  digitalWrite(GREEN_LED_PIN, !blocked && !caution ? HIGH : LOW);
+  digitalWrite(YELLOW_LED_PIN, caution ? HIGH : LOW);
+  digitalWrite(RED_LED_PIN, blocked ? HIGH : LOW);
 }

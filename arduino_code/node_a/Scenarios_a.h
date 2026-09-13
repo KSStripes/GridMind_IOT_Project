@@ -13,10 +13,11 @@ struct FacilityScenario {
 };
 
 static const FacilityScenario SCENARIOS[] = {
-    {"Hot but otherwise available", true, true, 26, 28},
+    {"Cool and available", true, true, 22, 28},
+    {"Warm with limited headroom", true, true, 26, 28},
+    {"Too hot - cooling required", true, true, 29, 28},
     {"Capacity unavailable", false, true, 24, 28},
-    {"Electricity unavailable", true, false, 23, 28},
-    {"Cool and available", true, true, 22, 28}};
+    {"Electricity unavailable", true, false, 23, 28}};
 
 static const uint8_t SCENARIO_COUNT =
     sizeof(SCENARIOS) / sizeof(SCENARIOS[0]);

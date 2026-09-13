@@ -17,17 +17,12 @@ class Facility {
   const FacilityScenario& current() const;
   uint8_t number() const;
   uint8_t count() const;
-  bool temperatureWarning() const;
+ bool temperatureWarning() const;
 
  private:
-  static const uint8_t MAX_SCENARIOS = 8;
-
-  FacilityScenario scenarios_[MAX_SCENARIOS];
+  const FacilityScenario* scenarios_;
   uint8_t scenarioCount_;
   uint8_t scenarioIndex_;
-  bool ready_;
-
-  static bool validScenario(const FacilityScenario& scenario);
 };
 
 #endif

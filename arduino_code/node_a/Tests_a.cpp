@@ -7,11 +7,11 @@ static bool testInitialScenario() {
   Facility facility;
   return facility.begin(SCENARIOS, SCENARIO_COUNT) &&
          facility.isReady() && facility.number() == 1 &&
-         facility.count() == 4 &&
+         facility.count() == 5 &&
          facility.current().capacityAvailable &&
          facility.current().powerAvailable &&
-         facility.current().tempC == 26 &&
-         facility.temperatureWarning();
+         facility.current().tempC == 22 &&
+         !facility.temperatureWarning();
 }
 
 static bool testAdvanceAndWrap() {
@@ -19,7 +19,7 @@ static bool testAdvanceAndWrap() {
   if (!facility.begin(SCENARIOS, SCENARIO_COUNT)) {
     return false;
   }
-  for (uint8_t expected = 2; expected <= 4; expected++) {
+  for (uint8_t expected = 2; expected <= SCENARIO_COUNT; expected++) {
     if (!facility.advance() || facility.number() != expected) {
       return false;
     }

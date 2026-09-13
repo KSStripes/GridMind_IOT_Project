@@ -1,4 +1,8 @@
-// Tests the scenario model without buttons, LEDs or Wi-Fi.
+/*
+  Tests Node A's first scenario and the full five-scenario cycle.
+  These tests do not need buttons, LEDs or Wi-Fi.
+  Dependencies: Facility_a.h, Scenarios_a.h and Tests_a.h.
+*/
 #include "Facility_a.h"
 #include "Scenarios_a.h"
 #include "Tests_a.h"

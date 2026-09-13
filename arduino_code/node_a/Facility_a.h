@@ -1,4 +1,7 @@
-// Owns Node A's validated deterministic scenario state.
+/*
+  Defines the small model used to hold and change Node A's facility scenario.
+  Dependencies: standard integer types and Scenarios_a.h.
+*/
 #ifndef GRIDMIND_NODE_A_FACILITY_H
 #define GRIDMIND_NODE_A_FACILITY_H
 
@@ -17,7 +20,7 @@ class Facility {
   const FacilityScenario& current() const;
   uint8_t number() const;
   uint8_t count() const;
- bool temperatureWarning() const;
+  bool temperatureWarning() const;
 
  private:
   const FacilityScenario* scenarios_;

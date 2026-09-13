@@ -1,4 +1,7 @@
-// Exposes Node A's deterministic startup tests.
+/*
+  Declares the two startup tests used to check Node A's scenario model.
+  Dependencies: standard integer types only.
+*/
 #ifndef GRIDMIND_NODE_A_TESTS_H
 #define GRIDMIND_NODE_A_TESTS_H
 

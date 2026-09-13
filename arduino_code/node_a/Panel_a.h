@@ -1,6 +1,8 @@
-// Reads Node A's Scenario button and drives its three LEDs.
-// D1=green capacity, D2=yellow electricity, D5=blue button,
-// D6=orange/red temperature; each LED uses 220 ohms to ground.
+/*
+  Defines Node A's Scenario button and three condition LEDs.
+  D1 is capacity, D2 electricity, D5 the button and D6 temperature.
+  Dependencies: Arduino core and Scenarios_a.h.
+*/
 #ifndef GRIDMIND_NODE_A_PANEL_H
 #define GRIDMIND_NODE_A_PANEL_H
 

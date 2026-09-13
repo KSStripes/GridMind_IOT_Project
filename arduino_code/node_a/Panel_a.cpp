@@ -1,4 +1,7 @@
-// Implements non-blocking button debounce and facility LED output.
+/*
+  Reads Node A's button without blocking and updates its condition LEDs.
+  Dependencies: Arduino core through Panel_a.h.
+*/
 #include "Panel_a.h"
 
 Panel::Panel()

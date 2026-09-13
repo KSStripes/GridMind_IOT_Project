@@ -1,4 +1,7 @@
-// Deterministic teaching scenarios shared by Node A's model and tests.
+/*
+  Stores the five fixed facility scenarios used by Node A and its tests.
+  Dependencies: standard integer types only.
+*/
 #ifndef GRIDMIND_NODE_A_SCENARIOS_H
 #define GRIDMIND_NODE_A_SCENARIOS_H
 

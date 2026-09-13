@@ -1,4 +1,7 @@
-// Implements scenario validation, selection and wraparound.
+/*
+  Implements Node A's scenario validation, selection and wraparound.
+  Dependencies: Facility_a.h.
+*/
 #include "Facility_a.h"
 
 Facility::Facility()

@@ -1,4 +1,8 @@
-// Serves the same Facility state shown by Node A's LEDs.
+/*
+  Connects Node A to Wi-Fi and serves its dashboard and JSON responses.
+  The web output uses the same facility state as the physical LEDs.
+  Dependencies: Arduino core and Web_a.h.
+*/
 #include <Arduino.h>
 
 #include "Web_a.h"

@@ -1,5 +1,8 @@
-// GridMind Node A - facility station
-// Coordinates scenario state, the physical panel and the web service.
+/*
+  GridMind Node A - facility station.
+  This sketch joins the scenario model, buttons, LEDs and web service.
+  Dependencies: ESP8266 Arduino core and the Node A project files below.
+*/
 #include "Secrets_a.h"
 #include "Facility_a.h"
 #include "Panel_a.h"

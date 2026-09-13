@@ -1,4 +1,7 @@
-// Provides Node A's Wi-Fi connection, dashboard and JSON routes.
+/*
+  Defines Node A's Wi-Fi connection, dashboard and JSON routes.
+  Dependencies: ESP8266WiFi, ESP8266WebServer and Facility_a.h.
+*/
 #ifndef GRIDMIND_NODE_A_WEB_H
 #define GRIDMIND_NODE_A_WEB_H
 
